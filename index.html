@@ -356,21 +356,15 @@
       if(it.precise||it.date){
         extraWrap=document.createElement('div'); extraWrap.className='extra';
         const lab=document.createElement('label');
-        lab.textContent=it.date?"Date d'expiration":'Préciser le(s) voyant(s)';
+        lab.textContent=it.date?"Date d'expiration":'Préciser le(s) voyant(s) et le(s) code(s) défaut(s)';
         const inp=document.createElement('input');
         inp.type=it.date?'date':'text';
-        if(it.precise) inp.placeholder='ex. voyant moteur, ABS…';
+        if(it.precise) inp.placeholder='ex. Moteur P0090, ABS B12C9…';
         inp.oninput=()=>state[it.id].extra=inp.value;
         extraWrap.appendChild(lab); extraWrap.appendChild(inp);
         card.appendChild(extraWrap);
       }
     }
-
-    const rem=document.createElement('textarea');
-    rem.className='remark'; rem.rows=1; rem.placeholder='Remarque (facultatif)';
-    rem.oninput=()=>state[it.id].remark=rem.value;
-    card.appendChild(rem);
-
     container.appendChild(card);
   });
 
