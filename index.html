@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
+<title>Fiche état véhicule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.31.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --turquoise:#22C9D6;
+    --turquoise-dark:#0FA9B5;
+    --turquoise-soft:#E4F8FA;
+    --ink:#0E1726;
+    --label:#8A93A2;
+    --line:#EDEFF3;
+    --bg:#FFFFFF;
+    --vert:#2FA84F; --vert-bg:#E9F7EE; --vert-tx:#1C7536;
+    --orange:#E8941A; --orange-bg:#FDF1DE; --orange-tx:#9A5E08;
+    --rouge:#E2453C; --rouge-bg:#FCE9E8; --rouge-tx:#9E241D;
+    --gris:#9AA3B0; --gris-bg:#F1F3F6; --gris-tx:#5C6675;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    font-family:'Poppins',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    padding:0 0 120px;
+  }
+  .wrap{max-width:640px; margin:0 auto; padding:22px 18px 0;}
+
+  header.top{margin-bottom:22px;}
+  header.top h1{font-size:26px; font-weight:800; letter-spacing:-0.02em; margin:0 0 4px; line-height:1.15;}
+  header.top .sub{font-size:15px; font-weight:600; color:var(--turquoise-dark); margin:0;}
+
+  .idcard{background:#fff; border:1px solid var(--line); border-radius:18px; padding:6px 16px; margin-bottom:26px;}
+  .idrow{display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--line);}
+  .idrow:last-child{border-bottom:none;}
+  .idrow i{font-size:22px; color:var(--turquoise); flex:0 0 auto;}
+  .idrow .field{flex:1;}
+  .idrow label{display:block; font-size:11.5px; font-weight:500; color:var(--label); letter-spacing:0.02em; margin-bottom:1px;}
+  .idrow input{
+    width:100%; border:none; background:transparent; padding:0;
+    font-family:inherit; font-size:16px; font-weight:600; color:var(--ink);
+  }
+  .idrow input::placeholder{color:#C7CDD6; font-weight:500;}
+  .idrow input:focus{outline:none;}
+
+  .section-title{font-size:13px; font-weight:600; color:var(--label); letter-spacing:0.06em; text-transform:uppercase; margin:0 4px 12px;}
+
+  .card{background:#fff; border:1px solid var(--line); border-radius:18px; padding:16px; margin-bottom:13px;}
+  .card .chead{display:flex; align-items:center; gap:11px; margin-bottom:13px;}
+  .card .chead i{font-size:21px; color:var(--turquoise); flex:0 0 auto;}
+  .card .chead .clabel{font-size:16px; font-weight:600; color:var(--ink); line-height:1.25;}
+
+  .opts{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+  .opts.four{grid-template-columns:repeat(2,1fr);}
+  .opt{
+    border:1.5px solid var(--line); background:#fff; border-radius:12px;
+    padding:11px 6px; font-family:inherit; font-size:14px; font-weight:600; color:#9AA3B0;
+    cursor:pointer; transition:all .12s ease; display:flex; align-items:center; justify-content:center; gap:5px;
+    min-height:46px;
+  }
+  .opt i{font-size:16px;}
+  .opt.sel-vert{background:var(--vert-bg); border-color:var(--vert); color:var(--vert-tx);}
+  .opt.sel-orange{background:var(--orange-bg); border-color:var(--orange); color:var(--orange-tx);}
+  .opt.sel-rouge{background:var(--rouge-bg); border-color:var(--rouge); color:var(--rouge-tx);}
+  .opt.sel-gris{background:var(--gris-bg); border-color:var(--gris); color:var(--gris-tx);}
+  .opt.sel-on{background:var(--rouge-bg); border-color:var(--rouge); color:var(--rouge-tx);}
+  .opt.sel-off{background:var(--vert-bg); border-color:var(--vert); color:var(--vert-tx);}
+  .opt.sel-on-ct{background:var(--vert-bg); border-color:var(--vert); color:var(--vert-tx);}
+  .opt.sel-off-ct{background:var(--rouge-bg); border-color:var(--rouge); color:var(--rouge-tx);}
+
+  .pct{display:flex; align-items:center; gap:10px;}
+  .pct input{
+    width:96px; border:1.5px solid var(--line); border-radius:12px; padding:11px 14px;
+    font-family:inherit; font-size:17px; font-weight:700; color:var(--ink); text-align:center;
+  }
+  .pct input:focus{outline:none; border-color:var(--turquoise);}
+  .pct .unit{font-size:14px; font-weight:600; color:var(--label);}
+
+  .extra{margin-top:12px; display:none;}
+  .extra.show{display:block;}
+  .extra label{display:block; font-size:11.5px; font-weight:500; color:var(--label); margin-bottom:5px;}
+  .extra input{
+    width:100%; border:1.5px solid var(--line); border-radius:12px; padding:11px 14px;
+    font-family:inherit; font-size:15px; font-weight:500; color:var(--ink);
+  }
+  .extra input:focus{outline:none; border-color:var(--turquoise);}
+
+  .remark{
+    width:100%; margin-top:11px; border:1.5px solid var(--line); border-radius:12px; padding:11px 14px;
+    font-family:inherit; font-size:14.5px; font-weight:500; color:var(--ink); resize:vertical; min-height:44px;
+  }
+  .remark::placeholder{color:#C7CDD6; font-weight:500;}
+  .remark:focus{outline:none; border-color:var(--turquoise);}
+
+  .actionbar{
+    position:fixed; left:0; right:0; bottom:0; background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px); border-top:1px solid var(--line);
+    padding:14px 18px calc(14px + env(safe-area-inset-bottom)); z-index:20;
+  }
+  .actionbar .inner{max-width:640px; margin:0 auto; display:flex; gap:10px;}
+  .btn-primary{
+    flex:1; background:var(--turquoise); border:none; color:#fff; border-radius:14px;
+    padding:15px; font-family:inherit; font-size:16px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-primary:active{background:var(--turquoise-dark);}
+  .btn-ghost{
+    flex:0 0 auto; background:#fff; border:1.5px solid var(--line); color:var(--label);
+    border-radius:14px; padding:0 17px; font-family:inherit; cursor:pointer; font-size:20px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .btn-ghost:active{background:#F5F6F8;}
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(14,23,38,.45); z-index:50;
+    display:none; align-items:flex-end; justify-content:center;
+  }
+  .overlay.show{display:flex;}
+  .sheet{
+    background:#fff; width:100%; max-width:640px; border-radius:22px 22px 0 0;
+    max-height:88vh; display:flex; flex-direction:column;
+    animation:rise .22s ease;
+  }
+  @keyframes rise{from{transform:translateY(40px); opacity:.6;} to{transform:translateY(0); opacity:1;}}
+  .sheet .shead{display:flex; align-items:center; justify-content:space-between; padding:18px 20px 12px; border-bottom:1px solid var(--line);}
+  .sheet .shead h2{font-size:18px; font-weight:700; margin:0;}
+  .sheet .shead button{background:none; border:none; font-size:24px; color:var(--label); cursor:pointer; padding:0; line-height:1;}
+  .sheet .sbody{padding:16px 16px; overflow-y:auto; background:#F4F6F8;}
+
+  .reccard{background:#fff; border-radius:18px; padding:22px 20px; border:1px solid var(--line);}
+  .rec-head{margin-bottom:18px;}
+  .rec-title{font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--turquoise-dark); margin-bottom:6px;}
+  .rec-id{font-size:22px; font-weight:800; letter-spacing:-0.02em; color:var(--ink); line-height:1.2; margin-bottom:4px;}
+  .rec-id .rec-immat{color:#3A4250; font-weight:800;}
+  .rec-id .rec-immat:before{content:" - "; color:#3A4250; font-weight:600;}
+  .rec-km{font-size:15px; font-weight:600; color:var(--label);}
+
+  .rec-badges{display:flex; gap:7px; margin-bottom:18px; flex-wrap:wrap;}
+  .sbadge{font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:20px; display:inline-flex; align-items:center; gap:5px;}
+  .sbadge i{font-size:14px;}
+  .sbadge.v{background:var(--vert-bg); color:var(--vert-tx);}
+  .sbadge.o{background:var(--orange-bg); color:var(--orange-tx);}
+  .sbadge.r{background:var(--rouge-bg); color:var(--rouge-tx);}
+
+  .rec-list{display:flex; flex-direction:column;}
+  .rec-row{display:flex; align-items:flex-start; gap:11px; padding:12px 0; border-top:1px solid var(--line);}
+  .rec-row:first-child{border-top:none;}
+  .rec-ic{font-size:19px; color:var(--turquoise); flex:0 0 auto; margin-top:1px;}
+  .rec-body{flex:1; min-width:0;}
+  .rec-name{font-size:14.5px; font-weight:600; color:var(--ink); line-height:1.3;}
+  .rec-rem{font-size:13px; font-weight:500; color:var(--label); margin-top:3px; line-height:1.4;}
+  .rec-val{flex:0 0 auto; font-size:13px; font-weight:700; padding:4px 11px; border-radius:9px; white-space:nowrap; margin-top:1px;}
+  .rec-val.v{background:var(--vert-bg); color:var(--vert-tx);}
+  .rec-val.o{background:var(--orange-bg); color:var(--orange-tx);}
+  .rec-val.r{background:var(--rouge-bg); color:var(--rouge-tx);}
+  .rec-val.g{background:var(--gris-bg); color:var(--gris-tx);}
+  .rec-val.n{background:#F1F3F6; color:#9AA3B0;}
+
+  .sheet .sfoot{padding:14px 16px calc(16px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); display:flex; gap:10px;}
+  .sf-primary{
+    flex:1; background:var(--turquoise); border:none; color:#fff; border-radius:14px;
+    padding:15px; font-family:inherit; font-size:15px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .sf-primary:active{background:var(--turquoise-dark);}
+  .sf-primary:disabled{opacity:.55;}
+  .sf-ghost{
+    flex:0 0 auto; background:#fff; border:1.5px solid var(--line); color:var(--label);
+    border-radius:14px; padding:0 16px; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .sf-ghost:active{background:#F5F6F8;}
+  .rec-warn{font-size:13px; font-weight:600; color:var(--rouge); padding:0 4px 10px; display:none;}
+  .rec-warn.show{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>État du véhicule</h1>
+    <p class="sub">Fiche d'expertise · état général</p>
+  </header>
+
+  <div class="idcard">
+    <div class="idrow">
+      <i class="ti ti-car"></i>
+      <div class="field"><label>Marque / modèle</label><input id="f-modele" type="text" placeholder="ex. Mercedes-Benz CLA Coupé"></div>
+    </div>
+    <div class="idrow">
+      <i class="ti ti-id"></i>
+      <div class="field"><label>Immatriculation</label><input id="f-immat" type="text" placeholder="AA-123-AA"></div>
+    </div>
+    <div class="idrow">
+      <i class="ti ti-gauge"></i>
+      <div class="field"><label>Kilométrage</label><input id="f-km" type="text" inputmode="numeric" placeholder="ex. 233 894 km"></div>
+    </div>
+  </div>
+
+  <p class="section-title">Points de contrôle</p>
+  <div id="items"></div>
+</div>
+
+<div class="actionbar">
+  <div class="inner">
+    <button class="btn-primary" id="btn-build"><i class="ti ti-clipboard-check"></i> Générer le récapitulatif</button>
+    <button class="btn-ghost" id="btn-reset" aria-label="Réinitialiser"><i class="ti ti-refresh"></i></button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div class="shead">
+      <h2>Récapitulatif</h2>
+      <button id="btn-close" aria-label="Fermer"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="sbody">
+      <div id="reccard" class="reccard">
+        <div class="rec-head">
+          <div class="rec-title">État du véhicule</div>
+          <div class="rec-id"><span id="rec-modele">—</span><span class="rec-immat" id="rec-immat"></span></div>
+          <div class="rec-km" id="rec-km">—</div>
+        </div>
+        <div class="rec-badges" id="badges"></div>
+        <div class="rec-list" id="rec-list"></div>
+      </div>
+    </div>
+    <div class="rec-warn" id="rec-warn"><i class="ti ti-alert-circle"></i> Renseignez l'immatriculation pour télécharger l'image.</div>
+    <div class="sfoot">
+      <button id="btn-download" class="sf-primary"><i class="ti ti-download"></i> Télécharger l'image</button>
+      <button id="btn-copy" class="sf-ghost"><i class="ti ti-copy"></i> Copier le texte</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const RYG = ['vert','orange','rouge'];
+  const RYGN = ['vert','orange','rouge','nd'];
+  const items = [
+    {id:'moteur', label:'Moteur', icon:'ti-engine', type:RYG},
+    {id:'boite', label:'Boîte de vitesse', icon:'ti-manual-gearbox', type:RYG},
+    {id:'direction', label:'Direction', icon:'ti-steering-wheel', type:RYG},
+    {id:'parebrise', label:'Pare-brise', icon:'ti-car-crash', type:RYG},
+    {id:'pneus_av', label:'Usure des pneus avant', icon:'ti-circle-dot', type:'pct'},
+    {id:'pneus_ar', label:'Usure des pneus arrière', icon:'ti-circle-dot', type:'pct'},
+    {id:'huile', label:"Niveau d'huile", icon:'ti-droplet', type:RYG},
+    {id:'ldr', label:'Niveau liquide de refroidissement', icon:'ti-temperature', type:RYG},
+    {id:'voyant', label:'Présence voyant', icon:'ti-alert-triangle', type:'oui_non', precise:true},
+    {id:'ct', label:'Contrôle technique valide', icon:'ti-file-check', type:'oui_non', date:true},
+    {id:'sellerie', label:'État de la sellerie', icon:'ti-armchair', type:RYG},
+    {id:'clim', label:'Climatisation', icon:'ti-air-conditioning', type:RYGN},
+    {id:'toit', label:'Toit panoramique / ouvrant', icon:'ti-sun', type:RYGN},
+    {id:'autoradio', label:'Autoradio', icon:'ti-device-speaker', type:RYGN},
+    {id:'stationnement', label:'Aide au stationnement', icon:'ti-parking', type:RYGN},
+  ];
+
+  const names = {vert:'Bon', orange:'Moyen', rouge:'Mauvais', nd:'Non dispo.'};
+  const optIcons = {vert:'ti-check', orange:'ti-minus', rouge:'ti-x', nd:'ti-ban'};
+
+  const state = {};
+  const container = document.getElementById('items');
+
+  function optionsFor(it){
+    if(it.type==='oui_non'){
+      const on = it.id==='ct' ? 'on-ct' : 'on';
+      const off = it.id==='ct' ? 'off-ct' : 'off';
+      return [{v:'oui', cls:on, txt:'OUI'},{v:'non', cls:off, txt:'NON'}];
+    }
+    return it.type.map(v=>({v, cls:(v==='nd'?'gris':v), txt:names[v], ic:optIcons[v]}));
+  }
+
+  items.forEach(it=>{
+    state[it.id]={value:null, remark:'', extra:''};
+    const card=document.createElement('div');
+    card.className='card';
+
+    const chead=document.createElement('div');
+    chead.className='chead';
+    chead.innerHTML='<i class="ti '+it.icon+'"></i><span class="clabel">'+it.label+'</span>';
+    card.appendChild(chead);
+
+    if(it.type==='pct'){
+      const pw=document.createElement('div'); pw.className='pct';
+      const inp=document.createElement('input');
+      inp.type='text'; inp.inputMode='numeric'; inp.placeholder='0';
+      inp.oninput=()=>{
+        inp.value=inp.value.replace(/[^0-9]/g,'');
+        if(inp.value!=='' && parseInt(inp.value,10)>100) inp.value='100';
+        state[it.id].value=inp.value;
+      };
+      const u=document.createElement('span'); u.className='unit'; u.textContent="% d'usure";
+      pw.appendChild(inp); pw.appendChild(u);
+      card.appendChild(pw);
+    } else {
+      const opts=document.createElement('div'); opts.className='opts';
+      const optList=optionsFor(it);
+      if(optList.length===4) opts.classList.add('four');
+      let extraWrap=null;
+      optList.forEach(o=>{
+        const b=document.createElement('button');
+        b.className='opt';
+        b.innerHTML=(o.ic?'<i class="ti '+o.ic+'"></i>':'')+o.txt;
+        b.onclick=()=>{
+          const already = state[it.id].value===o.v;
+          [...opts.children].forEach(c=>c.className='opt');
+          if(already){
+            state[it.id].value=null;
+            if(extraWrap){ extraWrap.classList.remove('show'); const ei=extraWrap.querySelector('input'); if(ei) ei.value=''; state[it.id].extra=''; }
+          } else {
+            state[it.id].value=o.v;
+            b.className='opt sel-'+o.cls;
+            if(extraWrap) extraWrap.classList.toggle('show', (it.precise||it.date) && o.v==='oui');
+          }
+        };
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+
+      if(it.precise||it.date){
+        extraWrap=document.createElement('div'); extraWrap.className='extra';
+        const lab=document.createElement('label');
+        lab.textContent=it.date?"Date d'expiration":'Préciser le(s) voyant(s)';
+        const inp=document.createElement('input');
+        inp.type=it.date?'date':'text';
+        if(it.precise) inp.placeholder='ex. voyant moteur, ABS…';
+        inp.oninput=()=>state[it.id].extra=inp.value;
+        extraWrap.appendChild(lab); extraWrap.appendChild(inp);
+        card.appendChild(extraWrap);
+      }
+    }
+
+    const rem=document.createElement('textarea');
+    rem.className='remark'; rem.rows=1; rem.placeholder='Remarque (facultatif)';
+    rem.oninput=()=>state[it.id].remark=rem.value;
+    card.appendChild(rem);
+
+    container.appendChild(card);
+  });
+
+  function val(id){return document.getElementById(id).value.trim();}
+
+  function classFor(it, s){
+    if(it.type==='pct'){
+      if(s.value===''||s.value===null) return 'n';
+      const p=parseInt(s.value,10);
+      return p>=80?'r':(p>=50?'o':'v');
+    }
+    if(it.type==='oui_non'){
+      if(it.id==='voyant') return s.value==='oui'?'r':'v';
+      if(it.id==='ct') return s.value==='non'?'r':'v';
+    }
+    if(s.value==='vert') return 'v';
+    if(s.value==='orange') return 'o';
+    if(s.value==='rouge') return 'r';
+    if(s.value==='nd') return 'g';
+    return 'n';
+  }
+
+  function displayVal(it, s){
+    if(it.type==='pct') return (s.value!==null && s.value!=='')?(s.value+" %"):'—';
+    if(!s.value) return '—';
+    if(it.type==='oui_non') return s.value.toUpperCase();
+    return names[s.value];
+  }
+
+  function compute(){
+    let nv=0,no=0,nr=0;
+    items.forEach(it=>{
+      const s=state[it.id];
+      const set=(it.type==='pct')?(s.value!==null&&s.value!==''):!!s.value;
+      if(!set) return;
+      const c=classFor(it,s);
+      if(c==='v')nv++; else if(c==='o')no++; else if(c==='r')nr++;
+    });
+    return {nv,no,nr};
+  }
+
+  function buildText(){
+    let lines=[];
+    lines.push("FICHE D'ÉTAT GÉNÉRAL DU VÉHICULE");
+    lines.push('================================');
+    lines.push('Modèle      : '+(val('f-modele')||'—'));
+    lines.push('Immatricul. : '+(val('f-immat')||'—'));
+    lines.push('Kilométrage : '+(val('f-km')||'—'));
+    lines.push('');
+    items.forEach(it=>{
+      const s=state[it.id];
+      let v=displayVal(it,s);
+      if(it.type==='pct' && v!=='—') v=s.value+" % d'usure";
+      let line='• '+it.label+' : '+v;
+      if(s.extra) line+=' ('+fmtExtra(it,s.extra)+')';
+      lines.push(line);
+      if(s.remark) lines.push('    ↳ '+s.remark);
+    });
+    return lines.join('\n');
+  }
+
+  function fmtExtra(it, extra){
+    if(!extra) return '';
+    if(it.date && /^\d{4}-\d{2}-\d{2}$/.test(extra)){
+      const p=extra.split('-');
+      return p[2]+'-'+p[1]+'-'+p[0];
+    }
+    return extra;
+  }
+
+  function fmtKm(raw){
+    const digits=(raw||'').replace(/[^0-9]/g,'');
+    if(!digits) return '—';
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g,'\u202F')+' Km';
+  }
+
+  function renderCard(){
+    document.getElementById('rec-modele').textContent=val('f-modele')||'Véhicule non identifié';
+    const immatEl=document.getElementById('rec-immat');
+    const immat=val('f-immat');
+    if(immat){ immatEl.textContent=immat; immatEl.style.display=''; }
+    else { immatEl.textContent=''; immatEl.style.display='none'; }
+    document.getElementById('rec-km').textContent=fmtKm(val('f-km'));
+
+    const c=compute();
+    const badges=document.getElementById('badges'); badges.innerHTML='';
+    const mk=(cls,ic,n,lab)=>{const d=document.createElement('span'); d.className='sbadge '+cls; d.innerHTML='<i class="ti '+ic+'"></i> '+n+' '+lab; return d;};
+    if(c.nv) badges.appendChild(mk('v','ti-check',c.nv,'bon'+(c.nv>1?'s':'')));
+    if(c.no) badges.appendChild(mk('o','ti-minus',c.no,'moyen'+(c.no>1?'s':'')));
+    if(c.nr) badges.appendChild(mk('r','ti-x',c.nr,'vigilance'));
+
+    const list=document.getElementById('rec-list'); list.innerHTML='';
+    items.forEach(it=>{
+      const s=state[it.id];
+      const set=(it.type==='pct')?(s.value!==null&&s.value!==''):!!s.value;
+      const row=document.createElement('div'); row.className='rec-row';
+      let valTxt=displayVal(it,s);
+      if(it.type==='pct' && valTxt!=='—') valTxt=s.value+' %';
+      let extraHtml='';
+      if(s.extra) extraHtml=' <span style="font-weight:600;">('+fmtExtra(it,s.extra)+')</span>';
+      let remHtml='';
+      if(s.remark) remHtml='<div class="rec-rem">'+s.remark.replace(/</g,'&lt;')+'</div>';
+      const cls = set ? classFor(it,s) : 'n';
+      row.innerHTML=
+        '<i class="ti '+it.icon+' rec-ic"></i>'+
+        '<div class="rec-body"><div class="rec-name">'+it.label+extraHtml+'</div>'+remHtml+'</div>'+
+        '<div class="rec-val '+cls+'">'+valTxt+'</div>';
+      list.appendChild(row);
+    });
+  }
+
+  document.getElementById('btn-build').onclick=()=>{
+    renderCard();
+    const hasImmat = val('f-immat')!=='';
+    document.getElementById('btn-download').disabled=!hasImmat;
+    document.getElementById('rec-warn').classList.toggle('show', !hasImmat);
+    document.getElementById('overlay').classList.add('show');
+    document.querySelector('.sheet .sbody').scrollTop=0;
+  };
+
+  document.getElementById('btn-close').onclick=()=>document.getElementById('overlay').classList.remove('show');
+  document.getElementById('overlay').onclick=(e)=>{if(e.target.id==='overlay')document.getElementById('overlay').classList.remove('show');};
+
+  document.getElementById('btn-copy').onclick=()=>{
+    const t=buildText();
+    const done=()=>{const b=document.getElementById('btn-copy'); b.innerHTML='<i class="ti ti-check"></i> Copié'; setTimeout(()=>{b.innerHTML='<i class="ti ti-copy"></i> Copier le texte';},1600);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done).catch(()=>fallback(t,done));}
+    else fallback(t,done);
+  };
+  function fallback(t,cb){const ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); cb();}
+
+  document.getElementById('btn-download').onclick=()=>{
+    const immat=val('f-immat');
+    if(!immat){
+      document.getElementById('rec-warn').classList.add('show');
+      document.getElementById('f-immat').focus();
+      return;
+    }
+    if(typeof html2canvas==='undefined'){
+      alert("Le téléchargement de l'image nécessite une connexion internet. Vous pouvez utiliser « Copier le texte » à la place.");
+      return;
+    }
+    const btn=document.getElementById('btn-download');
+    const prev=btn.innerHTML;
+    btn.innerHTML='<i class="ti ti-loader"></i> Génération…'; btn.disabled=true;
+    const card=document.getElementById('reccard');
+    html2canvas(card,{backgroundColor:'#ffffff', scale:2, useCORS:true}).then(canvas=>{
+      const safe=immat.replace(/[^A-Za-z0-9-]/g,'-');
+      canvas.toBlob(blob=>{
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a');
+        a.href=url; a.download='Formulaire_Expertise_VOM_'+safe+'.jpg';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(()=>URL.revokeObjectURL(url),2000);
+        btn.innerHTML='<i class="ti ti-check"></i> Téléchargée'; 
+        setTimeout(()=>{btn.innerHTML=prev; btn.disabled=false;},1800);
+      }, 'image/jpeg', 0.95);
+    }).catch(err=>{
+      alert("Échec de la génération de l'image. Vous pouvez utiliser « Copier le texte ».");
+      btn.innerHTML=prev; btn.disabled=false;
+    });
+  };
+
+  document.getElementById('btn-reset').onclick=()=>{
+    if(!confirm('Réinitialiser toute la fiche ?')) return;
+    items.forEach(it=>state[it.id]={value:null,remark:'',extra:''});
+    document.querySelectorAll('.opt').forEach(b=>b.className='opt');
+    document.querySelectorAll('.extra').forEach(e=>e.classList.remove('show'));
+    document.querySelectorAll('#items input, #items textarea, .idrow input').forEach(e=>e.value='');
+    document.getElementById('overlay').classList.remove('show');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+</script>
+</body>
+</html>
